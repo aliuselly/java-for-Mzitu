@@ -60,7 +60,7 @@ class DownloadImage implements Runnable
 				
 				int getPage = getDownloadPage();
 				
-				Thread.sleep(1000);
+				Thread.sleep(600);
 				
 				for(int num = 1; num <= getPage; num++)
 				{
@@ -68,26 +68,30 @@ class DownloadImage implements Runnable
 						
 					try
 					{
-						
+						//综合而言，获取到图片源连接后睡600毫秒，再下载图片，再睡600毫秒，这才是最稳的，好过之前的1500毫秒，虽然仅节约了300毫秒，不过比原来的单1500毫秒要稳
 						if(!object.exists())
 						{
 							if(num == 1)
 							{
 								String ss = getImageUrl();
-								Thread.sleep(1500);  //避免过度请求被pass
+								//Thread.sleep(1500);  //避免过度请求被pass
+								Thread.sleep(600);
 								startDownload(ss, object, num);
+								Thread.sleep(600);
 							}
 							else
 							{
 								String ss = getImageUrl(num, dataUrl);
-								Thread.sleep(1500);  //避免过度请求被pass
+								//Thread.sleep(1500);  //避免过度请求被pass
+								Thread.sleep(600);
 								startDownload(ss, object, num);
+								Thread.sleep(600);
 							}
 						}
 						else
 						{
 							System.out.println(object + "---!该图片已存在!");
-							//Thread.sleep(500);  //原本是下载过程中，不能立刻请求的，但是，如果不睡下的话，立刻请求会导致403
+							//Thread.sleep(300);  //原本是下载过程中，不能立刻请求的，但是，如果不睡下的话，立刻请求会导致403
 						}
 					}
 					
@@ -96,9 +100,9 @@ class DownloadImage implements Runnable
 						System.out.println("----------警号----------");
 						System.out.println("获取图源连接过程出现了异常!");
 						//e.printStackTrace();
-						Thread.sleep(1500);
+						Thread.sleep(600);
 						String ss = getImageUrl(num, dataUrl);
-						Thread.sleep(1500);
+						Thread.sleep(600);
 						startDownload(ss, object, num);
 						System.out.println("+++++重新下载完毕+++++");
 					}
