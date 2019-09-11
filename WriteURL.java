@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 
 class WriteURL implements Runnable
 {
@@ -69,6 +70,17 @@ class WriteURL implements Runnable
 			}
 			finally
 			{
+				if(bufw != null)
+					try
+					{
+						bufw.close();
+					}
+					catch(IOException e)
+					{
+						System.out.println("在抓取图源地址进本地时，出现异常!");
+						e.printStackTrace();
+					}
+					
 				Mz.flag = false;
 			}
 		}

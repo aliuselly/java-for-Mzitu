@@ -14,6 +14,7 @@ class DownloadImage implements Runnable
 {
 	private static int sum = 0;  //记录总页数
 	private static int amount = 0;  //记录当前所有所下载到的页数
+	private int dirPage = 0;
 	
 	private int page = 0;  //记录当前线程所下载的页数
 	private Document document = null;
@@ -55,12 +56,20 @@ class DownloadImage implements Runnable
 			{
 				getConnect(dataUrl);
 				
-				File dir = new File("E://op//爬取//" + page + "//" + document.title());
+				String dirName = document.title();
+				
+				if(dirName.contains("/") || dirName.contains("\\") || dirName.contains(":") || dirName.contains("*") || dirName.contains("?") || dirName.contains("\"") || dirName.contains("<") || dirName.contains(">") || dirName.contains("|") || dirName.contains("？"))
+				{
+					dirName = "有文件夹不能包含字符，因此换名(" + dirPage++ + ")";
+				}
+				
+				File dir = new File("E://op//爬取//" + page + "//" + dirName);
+				
 				dir.mkdirs();
 				
 				int getPage = getDownloadPage();
 				
-				Thread.sleep(1000);
+				Thread.sleep(350);
 				
 				for(int num = 1; num <= getPage; num++)
 				{
@@ -68,26 +77,30 @@ class DownloadImage implements Runnable
 						
 					try
 					{
-						
+						//综合而言，获取到图片源连接后睡600毫秒，再下载图片，再睡600毫秒，这才是最稳的，好过之前的1500毫秒，虽然仅节约了300毫秒，不过比原来的单1500毫秒要稳
 						if(!object.exists())
 						{
 							if(num == 1)
 							{
 								String ss = getImageUrl();
-								Thread.sleep(1500);  //避免过度请求被pass
-								startDownload(ss, object, num);
+								//Thread.sleep(1500);  //避免过度请求被pass
+								Thread.sleep(350);
+								startDownload(ss, object, num, dataUrl);
+								//Thread.sleep(300);
 							}
 							else
 							{
 								String ss = getImageUrl(num, dataUrl);
-								Thread.sleep(1500);  //避免过度请求被pass
-								startDownload(ss, object, num);
+								//Thread.sleep(1500);  //避免过度请求被pass
+								Thread.sleep(350);
+								startDownload(ss, object, num, dataUrl);
+								//Thread.sleep(300);
 							}
 						}
 						else
 						{
 							System.out.println(object + "---!该图片已存在!");
-							//Thread.sleep(500);  //原本是下载过程中，不能立刻请求的，但是，如果不睡下的话，立刻请求会导致403
+							//Thread.sleep(300);  //原本是下载过程中，不能立刻请求的，但是，如果不睡下的话，立刻请求会导致403
 						}
 					}
 					
@@ -96,20 +109,21 @@ class DownloadImage implements Runnable
 						System.out.println("----------警号----------");
 						System.out.println("获取图源连接过程出现了异常!");
 						//e.printStackTrace();
-						Thread.sleep(1500);
+						Thread.sleep(350);
 						String ss = getImageUrl(num, dataUrl);
-						Thread.sleep(1500);
-						startDownload(ss, object, num);
+						Thread.sleep(350);
+						startDownload(ss, object, num, dataUrl);
 						System.out.println("+++++重新下载完毕+++++");
 					}
 				}
 				System.out.println(dir + ">>>该套图下载完成~");
 				count++;
-				//Thread.sleep(1000);  //避免过度请求被pass
+				Thread.sleep(350);  //避免过度请求被pass，是getConnect的获取Document对象连接时的异常
 			}
 			System.out.println("第" + page + "页下载完毕，套图数为：" + count);
 			amount++;
 			page = amount;
+			Mz.recordDownloadPage(1, page);
 		}
 		catch(Exception e)
 		{
@@ -175,11 +189,11 @@ class DownloadImage implements Runnable
 		return img.attr("src");
 	}
 	
-	public void startDownload(String downloadUrl, File fileName, int num) throws Exception
+	public void startDownload(String downloadUrl, File fileName, int num, String uri) throws Exception
 	{
 		Response response = Jsoup.connect(downloadUrl)
 			.ignoreContentType(true)
-			.header("Referer", "https://i5.meizitu.net")
+			.header("Referer", uri + "/" + num)
 			.execute();
 				
 		FileOutputStream out = new FileOutputStream(fileName);

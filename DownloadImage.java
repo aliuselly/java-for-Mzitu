@@ -14,6 +14,7 @@ class DownloadImage implements Runnable
 {
 	private static int sum = 0;  //记录总页数
 	private static int amount = 0;  //记录当前所有所下载到的页数
+	private int dirPage = 0;
 	
 	private int page = 0;  //记录当前线程所下载的页数
 	private Document document = null;
@@ -55,12 +56,20 @@ class DownloadImage implements Runnable
 			{
 				getConnect(dataUrl);
 				
-				File dir = new File("E://op//爬取//" + page + "//" + document.title());
+				String dirName = document.title();
+				
+				if(dirName.contains("/") || dirName.contains("\\") || dirName.contains(":") || dirName.contains("*") || dirName.contains("?") || dirName.contains("\"") || dirName.contains("<") || dirName.contains(">") || dirName.contains("|") || dirName.contains("？"))
+				{
+					dirName = "有文件夹不能包含字符，因此换名(" + dirPage++ + ")";
+				}
+				
+				File dir = new File("E://op//爬取//" + page + "//" + dirName);
+				
 				dir.mkdirs();
 				
 				int getPage = getDownloadPage();
 				
-				Thread.sleep(600);
+				Thread.sleep(350);
 				
 				for(int num = 1; num <= getPage; num++)
 				{
@@ -75,17 +84,17 @@ class DownloadImage implements Runnable
 							{
 								String ss = getImageUrl();
 								//Thread.sleep(1500);  //避免过度请求被pass
-								Thread.sleep(600);
-								startDownload(ss, object, num);
-								Thread.sleep(600);
+								Thread.sleep(350);
+								startDownload(ss, object, num, dataUrl);
+								//Thread.sleep(300);
 							}
 							else
 							{
 								String ss = getImageUrl(num, dataUrl);
 								//Thread.sleep(1500);  //避免过度请求被pass
-								Thread.sleep(600);
-								startDownload(ss, object, num);
-								Thread.sleep(600);
+								Thread.sleep(350);
+								startDownload(ss, object, num, dataUrl);
+								//Thread.sleep(300);
 							}
 						}
 						else
@@ -100,20 +109,21 @@ class DownloadImage implements Runnable
 						System.out.println("----------警号----------");
 						System.out.println("获取图源连接过程出现了异常!");
 						//e.printStackTrace();
-						Thread.sleep(600);
+						Thread.sleep(350);
 						String ss = getImageUrl(num, dataUrl);
-						Thread.sleep(600);
-						startDownload(ss, object, num);
+						Thread.sleep(350);
+						startDownload(ss, object, num, dataUrl);
 						System.out.println("+++++重新下载完毕+++++");
 					}
 				}
 				System.out.println(dir + ">>>该套图下载完成~");
 				count++;
-				//Thread.sleep(1000);  //避免过度请求被pass
+				Thread.sleep(350);  //避免过度请求被pass，是getConnect的获取Document对象连接时的异常
 			}
 			System.out.println("第" + page + "页下载完毕，套图数为：" + count);
 			amount++;
 			page = amount;
+			Mz.recordDownloadPage(1, page);
 		}
 		catch(Exception e)
 		{
@@ -179,11 +189,11 @@ class DownloadImage implements Runnable
 		return img.attr("src");
 	}
 	
-	public void startDownload(String downloadUrl, File fileName, int num) throws Exception
+	public void startDownload(String downloadUrl, File fileName, int num, String uri) throws Exception
 	{
 		Response response = Jsoup.connect(downloadUrl)
 			.ignoreContentType(true)
-			.header("Referer", "https://i5.meizitu.net")
+			.header("Referer", uri + "/" + num)
 			.execute();
 				
 		FileOutputStream out = new FileOutputStream(fileName);

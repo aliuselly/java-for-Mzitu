@@ -5,17 +5,20 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.FileReader;
 
 public class Mz
 {
 	
 	public static int cachePage = 0;
 	public static boolean flag = true;
+	public static int beforeDownloadPage = 0;
 	
 	public static void main(String[] args)
 	{
 		try
-		{
+		{	
 			String url = "https://www.mzitu.com";
 			Document document = Jsoup.connect(url).get();
 			
@@ -23,6 +26,12 @@ public class Mz
 			
 			//想让更新图源地址的时候呢，删除掉每个目录下面的address.txt或者将WriteURL中的exists()方法给去掉，不想写扩展了，我好懒
 			getURL(cachePage);
+			
+			while(beforeDownloadPage == 0)
+			{
+				//该方法功能为创建一配置文件，避免每次从头开始
+				recordDownloadPage(0, 0);
+			}
 			
 			while(flag)
 			{
@@ -70,8 +79,40 @@ public class Mz
 	public static void downloadURL()
 	{
 		//开4个线程会导致很多图片重新下载，开5个会导致访问太快而403，所以3个才是比较好点的选择
-		new Thread(new DownloadImage(1,cachePage)).start();
-		new Thread(new DownloadImage(2,cachePage)).start();
-		new Thread(new DownloadImage(3,cachePage)).start();
+		//new Thread(new DownloadImage(73,cachePage)).start();
+		new Thread(new DownloadImage(beforeDownloadPage++,cachePage)).start();
+		new Thread(new DownloadImage(beforeDownloadPage++,cachePage)).start();
+		new Thread(new DownloadImage(beforeDownloadPage,cachePage)).start();
+	}
+	
+	public static void recordDownloadPage(int select, int page) throws IOException
+	{
+		File file = new File("E://op//爬取//配置文件.ini");
+		
+		switch(select)
+		{
+			case 0:
+				if(file.exists())
+				{
+					FileReader in = new FileReader(file);
+					beforeDownloadPage = in.read();
+					in.close();
+				}
+				else
+				{
+					FileWriter fw = new FileWriter(file);
+					fw.write(1);
+					fw.flush();
+					fw.close();
+				}
+				break;
+			
+			case 1:
+				FileWriter fw = new FileWriter(file);
+				fw.write(page);
+				fw.flush();
+				fw.close();
+				break;
+		}
 	}
 }
