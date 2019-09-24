@@ -23,7 +23,6 @@ public class Mz
 			Document document = Jsoup.connect(url).get();
 			
 			cachePage = getPageNumber(document);
-			
 			//想让更新图源地址的时候呢，删除掉每个目录下面的address.txt或者将WriteURL中的exists()方法给去掉，不想写扩展了，我好懒
 			getURL(cachePage);
 			
