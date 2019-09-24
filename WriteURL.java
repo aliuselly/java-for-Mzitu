@@ -37,6 +37,8 @@ class WriteURL implements Runnable
 				
 				if(!file.exists())
 				{
+					parent.mkdirs();
+					
 					bufw = new BufferedWriter(new FileWriter(file));
 					
 					parent.mkdir();
