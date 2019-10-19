@@ -86,6 +86,7 @@ public class Mz
 	
 	public static void recordDownloadPage(int select, int page) throws IOException
 	{
+		File dir = new File("E://op//爬取");
 		File file = new File("E://op//爬取//配置文件.ini");
 		
 		switch(select)
@@ -99,6 +100,8 @@ public class Mz
 				}
 				else
 				{
+					dir.mkdirs();
+					file.createNewFile();
 					FileWriter fw = new FileWriter(file);
 					fw.write(1);
 					fw.flush();

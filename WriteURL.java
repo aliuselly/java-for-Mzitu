@@ -26,9 +26,10 @@ class WriteURL implements Runnable
 		String writeUrl = null;
 		Document document = null;
 		
-		for(int x = 1; x <= num; x++)
+		
+		try
 		{
-			try
+			for(int x = 1; x <= num; x++)
 			{
 				url = "https://www.mzitu.com/page/" + x + "/";
 				
@@ -60,31 +61,32 @@ class WriteURL implements Runnable
 					System.out.println("第" + x + "页图源地址抓取完毕!");
 					
 					if(x % 2 == 0)
-						Thread.sleep(1000);  //暂停一下，服务器有反爬虫
+						Thread.sleep(500);  //暂停一下，服务器有反爬虫
 				}
 				else
 					System.out.println("第" + x + "页的图源地址已存在!");
 			}
-			catch(Exception e)
-			{
-				System.out.println("图源地址抓取过程异常!!!");
-				e.printStackTrace();
-			}
-			finally
-			{
-				if(bufw != null)
-					try
-					{
-						bufw.close();
-					}
-					catch(IOException e)
-					{
-						System.out.println("在抓取图源地址进本地时，出现异常!");
-						e.printStackTrace();
-					}
-					
-				Mz.flag = false;
-			}
 		}
+		catch(Exception e)
+		{
+			System.out.println("图源地址抓取过程异常!!!");
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(bufw != null)
+				try
+				{
+					bufw.close();
+				}
+				catch(IOException e)
+				{
+					System.out.println("在抓取图源地址进本地时，出现异常!");
+					e.printStackTrace();
+				}
+					
+			Mz.flag = false;
+		}
+		
 	}
 }
