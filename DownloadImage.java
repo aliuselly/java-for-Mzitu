@@ -109,7 +109,8 @@ class DownloadImage implements Runnable
 						System.out.println("----------警号----------");
 						System.out.println("获取图源连接过程出现了异常!");
 						//e.printStackTrace();
-						Thread.sleep(350);
+						System.out.println(Thread.currentThread().getName() + "遭遇429，原因：爬虫请求过快，请等待60s...");
+						Thread.sleep(60000);
 						String ss = getImageUrl(num, dataUrl);
 						Thread.sleep(350);
 						startDownload(ss, object, num, dataUrl);
@@ -136,7 +137,14 @@ class DownloadImage implements Runnable
 	{
 		try
 		{
-			document = Jsoup.connect(address).get();
+			document = Jsoup.connect(address)
+			.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+			.header("Accept-Encoding", "gzip, deflate")
+			.header("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3")
+			.header("Connection", "keep-alive")
+			.header("Host", address)
+			.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0")
+			.get();
 			
 			return document;
 		}
@@ -177,7 +185,14 @@ class DownloadImage implements Runnable
 	{
 		url = url + "/" + num + "/";
 		
-		document = Jsoup.connect(url).get();
+		document = Jsoup.connect(url)
+		.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+		.header("Accept-Encoding", "gzip, deflate")
+		.header("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3")
+		.header("Connection", "keep-alive")
+		.header("Host", url)
+		.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0")
+		.get();
 		Elements img = document.select("div.main-image").select("img");
 		//Thread.sleep(500);
 		return img.attr("src");
@@ -191,9 +206,19 @@ class DownloadImage implements Runnable
 	
 	public void startDownload(String downloadUrl, File fileName, int num, String uri) throws Exception
 	{
+		if(num == 1)
+			;  //什么都不想干，我不干了
+		else
+			num--;
 		Response response = Jsoup.connect(downloadUrl)
 			.ignoreContentType(true)
-			.header("Referer", uri + "/" + num)
+			.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+			.header("Accept-Encoding", "gzip, deflate")
+			.header("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3")
+			.header("Connection", "keep-alive")
+			.header("Host", uri + "/" + num)
+			.header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:26.0) Gecko/20100101 Firefox/26.0")
+			.header("Referer", uri + "/" + num)  //这个是表明你从那里来的
 			.execute();
 				
 		FileOutputStream out = new FileOutputStream(fileName);

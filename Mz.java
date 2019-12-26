@@ -79,6 +79,10 @@ public class Mz
 	{
 		//开4个线程会导致很多图片重新下载，开5个会导致访问太快而403，所以3个才是比较好点的选择
 		//new Thread(new DownloadImage(73,cachePage)).start();
+		
+		//放飞自我，开启5个，技术不到位，唉，还是python爬虫多教程，这里解决429的方法也是从python那里学习的，虽然我不会python...
+		new Thread(new DownloadImage(beforeDownloadPage++,cachePage)).start();
+		new Thread(new DownloadImage(beforeDownloadPage++,cachePage)).start();
 		new Thread(new DownloadImage(beforeDownloadPage++,cachePage)).start();
 		new Thread(new DownloadImage(beforeDownloadPage++,cachePage)).start();
 		new Thread(new DownloadImage(beforeDownloadPage,cachePage)).start();
